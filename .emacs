@@ -1,3 +1,22 @@
+;; Add MELPA package repository
+;; ;;(cond ((>= 24 emacs-major-version)
+;;   (require 'package)
+;;   (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+;;                     (not (gnutls-available-p))))
+;;          ;;(proto (if no-ssl "http" "https"))
+;;          (proto "http")
+;;          )
+;;
+;;     ;; Comment/uncomment next two lines to enable/disable MELPA and MELPA Stable as desired
+;;     (add-to-list 'package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
+;;     ;;(add-to-list 'package-archives (cons "melpa-stable" (concat proto "://stable.melpa.org/packages/")) t)
+;;  
+;;   )
+;;   (package-initialize)  
+;;   ;;(package-refresh-contents)
+;; ;; ) )
+
+
 ;; Set home directory
 (setq home-dir "/home/my_username") ; OR (setq home-dir "C:/Users/my_username")
 
@@ -38,6 +57,11 @@
          (setq ediff-diff-program-loc  "diff")
          (setq ediff-diff3-program-loc "diff3")
 
+         ;; Clipboard fixes
+         (setq select-active-regions t)
+         (setq mouse-drag-copy-region t)
+         (global-set-key [mouse-2] 'mouse-yank-at-click)
+
          ;; Mac-related changes to make Emacs behave a bit more like on other platforms:
 
          ;; Make the Command key behave like the Control key 
@@ -47,11 +71,11 @@
          (setq mac-command-modifier 'control)
 
          ;; Make Fn-UpArrow be "Home" and Fn-DownArrow be "End"
-         (global-set-key [prior]    'beginning-of-buffer)
-         (global-set-key [next]     'end-of-buffer)
+         ;;(global-set-key [prior]    'beginning-of-buffer)
+         ;;(global-set-key [next]     'end-of-buffer)
          ;;; The following make sure PageUp and PageDown on keyboards with those keys do the right thing 
-         ;;;(global-set-key [prior]    'scroll-down)
-         ;;;(global-set-key [next]     'scroll-up)
+         (global-set-key [prior]    'scroll-down)
+         (global-set-key [next]     'scroll-up)
 
          ;; Make OptionKey-UpArrow be PageUp and OptionKey-DownArrow be PageDown
          (global-set-key [M-up]     'scroll-down)
@@ -91,6 +115,17 @@
          (setq ediff-diff3-program-loc "diff3")
        )
 )
+
+;; Emacs IPython Notebook
+;(require 'ein)
+;(require 'ein-loaddefs)
+;(require 'ein-notebook)
+;(require 'ein-subpackages)
+
+;; Atomic chrome
+;; Extension for Google Chrome browser that allows you to edit text areas of the browser in Emacs
+;(require 'atomic-chrome)
+;(atomic-chrome-start-server)
 
 ;; Set emacs' load path
 (setq emacs-dir (expand-file-name (concat home-dir "/.emacsdir")))
@@ -250,6 +285,11 @@
 (global-set-key (kbd "C->")        'python-indent-shift-right)
 (global-set-key (kbd "C-<")        'python-indent-shift-left)
 
+
+(global-set-key (kbd "C-c C-p")  'python-mode)
+(global-set-key (kbd "C-c C-s")  'sql-mode)
+
+
 ;;Define the mouse scroll wheel
 (defun up-slightly   () (interactive) (scroll-up   5))
 (defun down-slightly () (interactive) (scroll-down 5))
@@ -259,6 +299,17 @@
 (global-set-key [double-wheel-up]   'down-slightly)
 (global-set-key [triple-wheel-down] 'up-slightly)
 (global-set-key [triple-wheel-up]   'down-slightly)
+
+
+;; Tramp mode
+;(setq tramp-default-method "ssh")
+;C-x C-f /ssh:__username__@__servername__:__path_to_folder__
+;(defun tramp_connect_to_server()
+;  (interactive)
+;  (setq tramp-default-method "ssh")
+;  (find-file "/ssh:__username__@__servername__:__path_to_folder__")
+;)
+
 
 ;; ------------------------
 ;; Org-mode stuff
@@ -270,13 +321,14 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(matlab-indent-level 2)
- '(ns-use-qd-smoothing t)
- '(paren-match-face (quote paren-face-match-light))
- '(paren-sexp-mode t)
  '(ediff-diff-options "-w -B")
  '(ediff-diff-program  ediff-diff-program-loc)
  '(ediff-diff3-program ediff-diff-program-loc)
+ '(matlab-indent-level 2)
+ '(ns-use-qd-smoothing t)
+ ;'(package-selected-packages (quote (php-mode ein kmb atomic-chrome)))
+ '(paren-match-face (quote paren-face-match-light))
+ '(paren-sexp-mode t) 
  ;; AUCTeX variables
  ;'(LaTeX-command "latex")
  ;'(TeX-PDF-mode t)
