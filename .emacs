@@ -238,7 +238,8 @@
 (global-set-key [f3]    'query-replace)
 (global-set-key [C-f3]  'query-replace-regexp)
 
-(global-set-key [f4]    (lambda () (interactive) (load-file (concat home-dir "/.emacs"))))
+;(global-set-key [f4]    (lambda () (interactive) (load-file (concat home-dir "/.emacs"))))
+(global-set-key [f4]    (lambda () (interactive) (set-selective-display (if selective-display nil 3))))
 (global-set-key [f5]    'matlab-shell-save-and-go) ; Only useful in matlab .m files and if Matlab is available
 
 (global-set-key [f6]    'ediff-revision)
