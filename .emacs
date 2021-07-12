@@ -239,8 +239,10 @@
 (global-set-key [C-f3]  'query-replace-regexp)
 
 ;(global-set-key [f4]    (lambda () (interactive) (load-file (concat home-dir "/.emacs"))))
-(global-set-key [f4]    (lambda () (interactive) (set-selective-display (if selective-display nil 3))))
-(global-set-key [f5]    'matlab-shell-save-and-go) ; Only useful in matlab .m files and if Matlab is available
+;(global-set-key [f4]    (lambda () (interactive) (set-selective-display (if selective-display nil 3))))
+;(global-set-key [f5]    'matlab-shell-save-and-go) ; Only useful in matlab .m files and if Matlab is available
+(global-set-key [f5]    'search-buffers)
+(global-set-key [C-f5]  'search-buffers-for-current-word)
 
 (global-set-key [f6]    'ediff-revision)
 (global-set-key [f7]    'ediff-buffers)
@@ -451,3 +453,20 @@
                (format "^%s" (regexp-quote (car kill-ring))) nil t)
             (replace-match "" nil nil))
           (goto-char next-line))))))
+
+
+;; ------------------------------------------------------------------------
+(defun search-buffers ()
+  "Search all open buffers"
+  (interactive)
+  (setq regex (read-string "Regex to search for: " nil nil "."))
+  (multi-occur-in-matching-buffers "." regex)
+)
+
+(defun search-buffers-for-current-word ()
+  "Search all open buffers for word under cursor"
+  (interactive)
+  (setq current-word (get-current-word))
+  (multi-occur-in-matching-buffers "." current-word)
+)
+
