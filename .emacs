@@ -291,7 +291,7 @@
 
 (global-set-key (kbd "C-c C-p")  'python-mode)
 (global-set-key (kbd "C-c C-s")  'sql-mode)
-
+(global-set-key (kbd "C-c m")    'show-matching-paren-context)
 
 ;;Define the mouse scroll wheel
 (defun up-slightly   () (interactive) (scroll-up   5))
@@ -469,4 +469,25 @@
   (setq current-word (get-current-word))
   (multi-occur-in-matching-buffers "." current-word)
 )
+
+;; ------------------------------------------------------------------------
+(defun show-matching-paren-context ()
+  "Show the context of the matching opening parenthesis in the minibuffer."
+  (interactive)
+  (let ((here (point))
+        open-point line-text)
+    (save-excursion
+      (when (looking-at "[])}]")  ; If at closing paren/brace/bracket
+        (forward-char 1)
+        (backward-list)           ; Jump to matching opening paren
+        (setq open-point (point))
+        ;; Grab context (the whole line or part of it)
+        (beginning-of-line)
+        (setq line-text (buffer-substring-no-properties
+                         (line-beginning-position)
+                         (min (+ (line-beginning-position) 40) ; Limit to 40 chars
+                              (line-end-position))))
+        ;; Display in minibuffer
+        (message "Matches: %s" line-text)))
+    (goto-char here)))
 
