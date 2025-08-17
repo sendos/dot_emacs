@@ -491,3 +491,11 @@
         (message "Matches: %s" line-text)))
     (goto-char here)))
 
+;; ------------------------------------------------------------------------
+(defun search-files (regexp)
+  "Search for REGEXP in all buffers using multi-occur.
+Prompts the user for a regex and searches all buffers,
+including those that don't visit files."
+  (interactive "sSearch regexp in all buffers: ") ;; Keep sSearch, s means string input
+  (multi-occur-in-matching-buffers ".*" regexp t))
+
