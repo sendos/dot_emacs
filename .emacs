@@ -499,3 +499,30 @@ including those that don't visit files."
   (interactive "sSearch regexp in all buffers: ") ;; Keep sSearch, s means string input
   (multi-occur-in-matching-buffers ".*" regexp t))
 
+;; ------------------------------------------------------------------------
+(defun align-on-string (beg end str)
+  "Select region and run M-x align-on-string to align columns on 
+   multiple lines using your preferred string or character."
+  (interactive
+   (list
+    (region-beginning)
+    (region-end)
+    (read-string "Align on string: ")))
+  (let ((regexp (format "\\(\\s-*\\)%s\\s-*"
+                        (regexp-quote str))))
+    (align-regexp beg end regexp 1 1 t))
+)
+
+(defun align-on-regexp (beg end regexp)
+  "Select region and run M-x align-on-string to align columns on 
+   multiple lines using your preferred regex."  
+  (interactive
+   (list
+    (region-beginning)
+    (region-end)
+    (read-string "Align on regexp: ")))
+  (align-regexp beg end (format "\\(\\s-*\\)%s\\s-*" regexp) 
+                1 1 t)
+)
+
+
