@@ -1,20 +1,21 @@
 ;; Add MELPA package repository
-;; ;;(cond ((>= 24 emacs-major-version)
-;;   (require 'package)
-;;   (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-;;                     (not (gnutls-available-p))))
-;;          ;;(proto (if no-ssl "http" "https"))
-;;          (proto "http")
-;;          )
-;;
-;;     ;; Comment/uncomment next two lines to enable/disable MELPA and MELPA Stable as desired
-;;     (add-to-list 'package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
-;;     ;;(add-to-list 'package-archives (cons "melpa-stable" (concat proto "://stable.melpa.org/packages/")) t)
-;;  
-;;   )
-;;   (package-initialize)  
-;;   ;;(package-refresh-contents)
-;; ;; ) )
+;; (cond ((>= 24 emacs-major-version)
+  (require 'package)
+  (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+                    (not (gnutls-available-p))))
+         ;;(proto (if no-ssl "http" "https"))
+         (proto "http")
+         )
+
+    ;; Comment/uncomment next two lines to enable/disable MELPA and MELPA Stable as desired
+    (add-to-list 'package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
+    ;;(add-to-list 'package-archives (cons "melpa-stable" (concat proto "://stable.melpa.org/packages/")) t)
+ 
+  )
+  (package-initialize)
+  ;; Note: Use the following if M-x package-install can't find the package you're looking for
+  ;;(package-refresh-contents)
+;; ) )
 
 
 ;; Set home directory
@@ -116,6 +117,16 @@
        )
 )
 
+
+;; Desktop mode (save open buffers and re-open later)
+(unless (member "--no-desktop" command-line-args)
+  (desktop-save-mode 1)
+  (setq desktop-dirname "~/.emacs.d/desktop/")
+  (setq desktop-path (list desktop-dirname))
+  (setq desktop-restore-frames t)
+  (setq desktop-save t)
+)
+
 ;; Emacs IPython Notebook
 ;(require 'ein)
 ;(require 'ein-loaddefs)
@@ -133,6 +144,9 @@
  
 ;; Remove the toolbar
 (tool-bar-mode -1)
+
+;; Remove the "Package cl is deprecated" warnings
+(setq byte-compile-warnings '(cl-functions))
 
 ;; Turn off the beep sound
 ;(setq visible-bell 1)
@@ -170,6 +184,19 @@
         '())
       (setq matlab-mode-hook 'my-matlab-mode-hook)
 
+;; Auto load modes for files for which we don't have a mode installed
+(use-package treesit-auto
+  :custom
+  (treesit-auto-install 'prompt) ; Ask before downloading a new grammar
+  :config
+  (treesit-auto-add-to-auto-mode-alist 'all) ; Map file extensions to -ts-modes
+  (global-treesit-auto-mode)) ; Enable the automation globally
+
+;; Needed for being able to install typescript mode using M-x treesit-install-language-grammar
+(setq treesit-language-source-alist
+      '((typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+        (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")))
+
 
 ;; Make sure underscore ("_") is treated as part of a word
 ;; in various modes (so that when you double-click on 
@@ -193,6 +220,10 @@
 (add-hook 'matlab-mode-hook   
           '(lambda () (modify-syntax-entry ?_ "w" matlab-mode-syntax-table)))
 
+;;(add-hook 'scad-mode-hook   
+;;          '(lambda () (modify-syntax-entry ?_ "w" c-mode-syntax-table)))
+(add-to-list 'auto-mode-alist '("\\.scad\\'" . c-mode))
+
 ;; Make the braces under if and for statements
 ;; appear with no additional indentation
 (setq c-default-style "stroustrup")
@@ -201,6 +232,7 @@
 (add-hook 'awk-mode-hook    '(lambda () (setq c-basic-offset 2)))
 (add-hook 'php-mode-hook    '(lambda () (setq c-basic-offset 2)))
 (add-hook 'perl-mode-hook   '(lambda () (setq perl-indent-level 2)))
+(add-hook 'javascript-mode-hook   '(lambda () (setq js-indent-level 2)))
 ;;(add-hook 'matlab-mode-hook '(lambda () (setq matlab-indent-level 2))) ;; Needed???
 
 
@@ -223,6 +255,10 @@
   (autoload 'php-mode "php-mode" "Enter PHP mode." t)
   (setq auto-mode-alist (cons '("\\.php$" . php-mode) auto-mode-alist))
 
+;; Make sure .ts files are in Javascript mode (TODO: Make this Typescript mode)
+  (setq auto-mode-alist (cons '("\\.ts$" . javascript-mode) auto-mode-alist))
+
+
 ;; Multi-web-mode
 (require 'multi-web-mode)
 (setq mweb-default-major-mode 'html-mode)
@@ -231,6 +267,17 @@
                   (css-mode "<style[^>]*>" "</style>")))
 (setq mweb-filename-extensions '("php" "htm" "html" "ctp" "phtml" "php4" "php5"))
 (multi-web-global-mode 1)
+
+;; Ollama client for Emacs
+;;   ollama-define-word
+;;   ollama-prompt-line
+;;   ollama-summarize-region
+;;   ollama-translate-word
+(require 'ollama)
+(setq ollama:model "llama3.3")
+(setq ollama:language "English")
+
+
 
 ;;; Miscellaneous bindings
 (global-set-key [f1]    'goto-line)
@@ -281,6 +328,8 @@
 (global-set-key (kbd "C-1")  'delete-other-windows)
 (global-set-key (kbd "C-2")  'split-window-below)
 
+(global-set-key (kbd "C-5")  'comment-or-uncomment-region)
+
 ; In Python: Make Ctrl-TAB       and Ctrl-> indent a block to the right
 ;            and  Ctrl-Shift-TAB and Ctrl-< indent a block to the left
 (global-set-key [C-tab]            'python-indent-shift-right)
@@ -318,6 +367,9 @@
 ;; Org-mode stuff
 (setq org-cycle-include-plain-lists t)
 
+;; ------------------------
+;; Customization
+
 ;; Variables set automatically by emacs
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
@@ -329,14 +381,11 @@
  '(ediff-diff3-program ediff-diff-program-loc)
  '(matlab-indent-level 2)
  '(ns-use-qd-smoothing t)
- ;'(package-selected-packages (quote (php-mode ein kmb atomic-chrome)))
- '(paren-match-face (quote paren-face-match-light))
- '(paren-sexp-mode t) 
- ;; AUCTeX variables
- ;'(LaTeX-command "latex")
- ;'(TeX-PDF-mode t)
- ;'(font-latex-fontify-script nil)
-)
+ '(package-selected-packages
+   '(treesit-auto markdown-mode esxml nov scad-mode atomic-chrome))
+ '(paren-match-face 'paren-face-match-light)
+ '(paren-sexp-mode t)
+ )
 
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
@@ -344,6 +393,9 @@
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
  )
+
+;; Set default font size to 14pt (140)
+(set-face-attribute 'default nil :height 140)
 
 ;; find occurrences of variable settings that don't end in ;
 ; (isearch-forward-regexp '^[^%;]+=[^%;]+$')
@@ -485,7 +537,7 @@
         (beginning-of-line)
         (setq line-text (buffer-substring-no-properties
                          (line-beginning-position)
-                         (min (+ (line-beginning-position) 40) ; Limit to 40 chars
+                         (min (+ (line-beginning-position) 80) ; Limit to 80 chars
                               (line-end-position))))
         ;; Display in minibuffer
         (message "Matches: %s" line-text)))
